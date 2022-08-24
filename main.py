@@ -1,6 +1,17 @@
+import sys
 from random import randint
 
+class GeneralException(Exception):
+    pass
+
+
+class OutOfBoardException(GeneralException):
+    def __str__(self):
+        print('Out')
+
 letters = 'ABCDEF'
+
+
 class Dot:
     def __init__(self, x, y):
         self.x = x
@@ -26,25 +37,31 @@ class Board:
 
 
 class Ship:
-    coords_of_ships = []
+
     def __init__(self):
         pass
 
     def rand_ship(self, rnd_coords, ship, orientation):
-        # board = Board()
-        self.x = rnd_coords.x
-        self.y = rnd_coords.y
+        coords_of_ships = []
+        board = Board()
         for i in range(ship):
-            if i == 0:
-                self.coords_of_ships.append([self.x, self.y])
-                continue
-            if 0 <= self.x <= 5 and 0 <= self.y <= 5:
-                if orientation:
-                    self.x += 1
-                else:
-                    self.y += 1
-                self.coords_of_ships.append([self.x, self.y])
-        return self.coords_of_ships
+            self.x = rnd_coords.x
+            self.y = rnd_coords.y
+
+            if orientation:
+                self.x += i
+            else:
+                self.y += i
+            if (0 < self.x >= 6) or (0 < self.y >= 6):
+                # print(self.x, self.y)
+                # sys.exit()
+                return None
+                # raise OutOfBoardException()
+            if board.field[self.x][self.y]:
+                coords_of_ships.append(Dot(self.x, self.y))
+            else:
+                return None
+        return coords_of_ships
 
         # return False
 
@@ -57,13 +74,21 @@ class Game:
         board = Board()
         # board.field[randint(0, 5)][randint(0, 5)] = '■'
         ship = Ship()
-        _ships_ = [3, 2, 2, 1, 1, 1]
+        _ships_ = [3, 2, 2, 1, 1, 1, 1]
         for _ship_ in _ships_:
-            rnd_coord = Dot(randint(0, 5), randint(0, 5))
-            orientation = randint(0, 1)
-            ship.rand_ship(rnd_coord, _ship_, orientation)
-        for crd in ship.coords_of_ships:
-            board.field[crd[0]][crd[1]] = '■'
+            retry = 1
+            while True:
+                rnd_coord = Dot(randint(0, 5), randint(0, 5))
+                orientation = randint(0, 1)
+                xx = ship.rand_ship(rnd_coord, _ship_, orientation)
+                if xx is not None:
+                    try:
+                        for crd in xx:
+                            board.field[crd.x][crd.y] = '■'
+                        print(*xx) # остановка...
+                        break
+                    except OutOfBoardException:
+                        continue
         return board
 
 
