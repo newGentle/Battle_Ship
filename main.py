@@ -1,112 +1,80 @@
-import sys
 from random import randint
-
-class GeneralException(Exception):
-    pass
-
-
-class OutOfBoardException(GeneralException):
-    def __str__(self):
-        print('Out')
-
-letters = 'ABCDEF'
 
 
 class Dot:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
-    def __repr__(self):
-        return f"({self.x}, {self.y})"
-
+    def __str__(self):
+        return f'{self.x}, {self.y}'
 
 class Board:
-
     def __init__(self):
-        self.field = [['~'] * 6 for i in range(6)]
+        self.field = [['~'] * 6 for _ in range(6)]
 
-    def __str__(self): # создать список для доски для ретурна
-        print(f'  1 2 3 4 5 6')
+    def __str__(self):
+        _field = ''
+        _field += f'  1 2 3 4 5 6'
         for i, j in enumerate(self.field):
-            print(f'{letters[i]} ' + ' '.join(j))
-        return ''
+            _field += f'\n{i + 1} ' + ' '.join(j)
+        return _field
+
+def check_dots(dots):
+    if not (0 <= dots.x < 6 > dots.y >= 0):
+        return False
+    return True
+
+def safe_dots(dots):
+    safe_zone = []
+    safe = [(-1, -1), (-1, 0), (-1, 1),
+            (0, -1), (0, 0), (0, 1),
+            (1, -1), (1, 0), (1, 1)]
+    for _x, _y in safe:
+        cur = Dot(_x + dots.x, _y + dots.y)
+        if 0 <= cur.x < 6 > cur.y >= 0:
+            safe_zone.append(Dot(cur.x, cur.y))
+    return safe_zone
+
+appended_coords = []
+new_ship_coords = []
+len_of_ships = [3, 2, 2, 1, 1, 1, 1]
+for i in len_of_ships:
+    while len(new_ship_coords) < i:
+        ship = Dot(randint(0, 5), randint(0, 5))
+        orientation = randint(0, 1)
+        if 0 <= ship.x < 6 > ship.y >= 0:
+            for j in range(i):
+                x = ship.x
+                y = ship.y
+                if orientation:
+                    x += j
+                else:
+                    y += j
+
+                if check_dots(Dot(x, y)):
+                    new_ship_coords.append(Dot(x, y))
+                else:
+                    new_ship_coords = []
+                    break
+        else:
+            continue
+    for z in new_ship_coords:
+        appended_coords.append(Dot(z.x, z.y))
+    new_ship_coords = []
 
 
-class Ship:
+x = Board()
+try:
+    for i in appended_coords:
+        z = safe_dots(Dot(i.x, i.y))
+        for j in z:
+            x.field[j.x][j.y] = '.'
+            x.field[i.x][i.y] = '■'
+except Exception as e:
+    print(j.x, j.y)
 
-    def __init__(self):
-        pass
-
-    def rand_ship(self, rnd_coords, ship, orientation):
-        coords_of_ships = []
-        board = Board()
-        for i in range(ship):
-            self.x = rnd_coords.x
-            self.y = rnd_coords.y
-
-            if orientation:
-                self.x += i
-            else:
-                self.y += i
-            if (0 < self.x >= 6) or (0 < self.y >= 6):
-                # print(self.x, self.y)
-                # sys.exit()
-                return None
-                # raise OutOfBoardException()
-            if board.field[self.x][self.y]:
-                coords_of_ships.append(Dot(self.x, self.y))
-            else:
-                return None
-        return coords_of_ships
-
-        # return False
-
-
-class Game:
-    def __init__(self):
-        pass
-
-    def rand_coord(self):
-        board = Board()
-        # board.field[randint(0, 5)][randint(0, 5)] = '■'
-        ship = Ship()
-        _ships_ = [3, 2, 2, 1, 1, 1, 1]
-        for _ship_ in _ships_:
-            retry = 1
-            while True:
-                rnd_coord = Dot(randint(0, 5), randint(0, 5))
-                orientation = randint(0, 1)
-                xx = ship.rand_ship(rnd_coord, _ship_, orientation)
-                if xx is not None:
-                    try:
-                        for crd in xx:
-                            board.field[crd.x][crd.y] = '■'
-                        print(*xx) # остановка...
-                        break
-                    except OutOfBoardException:
-                        continue
-        return board
-
-
-    def play(self):
-        pl = input(': ')
-        if pl[0] in letters:
-            x = int(letters.index(pl[0]))
-            y = int(pl[1])
-            b.field[x][y - 1] = '■'
-        return ''
-
-# b = Board()
-# b.field[4][5] = '■'
-# print(b.make_board())
-#
-# a = Game()
-# print(a.play())
-# print(b)
-
-b = Game()
-print(b.rand_coord())
+print(x)
+print(len(appended_coords))
