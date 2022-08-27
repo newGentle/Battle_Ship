@@ -1,17 +1,24 @@
 from random import randint
 
+
 class GameException(Exception):
     pass
+
+
 class BoardErrorException(GameException):
     pass
+
 
 class OutOfBoardException(GameException):
     def __str__(self):
         return f'Командир, стрельба вне зоны...'
 
+
 class SamePointException(GameException):
     def __str__(self):
         return f'Командир, мы туда снаряд отправляли уже...'
+
+
 class Dot:
     def __init__(self, x, y):
         self.x = x
@@ -23,6 +30,7 @@ class Dot:
     def __str__(self):
         return f'{self.x}, {self.y}'
 
+
 class Board:
 
     def __init__(self, hide=False):
@@ -32,6 +40,7 @@ class Board:
         self.field = [['~'] * 6 for _ in range(6)]
         self.hide = hide
         self.letters = 'ABCDEF'
+
     def __str__(self):
         _field = ''
         _field += f'  1 2 3 4 5 6'
@@ -85,8 +94,11 @@ class Board:
         self.field[d.x][d.y] = "."
         print("Мимо!")
         return False
+
     def begin(self):
         self.busy = []
+
+
 class Ship:
     def __init__(self, rand_coord, length):
         self.rand_coord = rand_coord
@@ -117,13 +129,17 @@ class Ship:
                 return ships
             else:
                 orientation = orientation[1:]
+
     def shooten(self, shot):
         return shot in self.generate_ship
+
+
 class Player:
     def __init__(self, board, opponent):
         self.letters = 'ABCDEF'
         self.board = board
         self.opponent = opponent
+
     def ask(self):
         raise NotImplementedError()
 
@@ -136,16 +152,19 @@ class Player:
             except GameException as e:
                 print(e)
 
+
 class Computer(Player):
     def ask(self):
         aim = Dot(randint(0, 5), randint(0, 5))
         print(f'Выстрел врага - {self.letters[aim.x]}{aim.y + 1}')
         return aim
+
+
 class User(Player):
 
     def ask(self):
         while True:
-            aim = input('Командир, введите координаты: ')
+            aim = input('Командир, введите координаты: ').upper()
             if not aim:
                 continue
             if aim[0] in self.letters and aim[1].isdigit() and (0 < int(aim[1]) <= 6):
@@ -157,6 +176,7 @@ class User(Player):
                 print('Командир, координаты не верны')
                 continue
             return Dot(_x, _y)
+
 
 class Game:
 
@@ -237,7 +257,6 @@ class Game:
         self.greet()
         self.loop()
 
+
 b = Game()
 b.start()
-
-
