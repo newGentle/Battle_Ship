@@ -6,11 +6,11 @@ class BoardErrorException(GameException):
     pass
 
 class OutOfBoardException(GameException):
-    def __repr__(self):
+    def __str__(self):
         return f'Командир, стрельба вне зоны...'
 
 class SamePointException(GameException):
-    def __repr__(self):
+    def __str__(self):
         return f'Командир, мы туда снаряд отправляли уже...'
 class Dot:
     def __init__(self, x, y):
@@ -44,7 +44,7 @@ class Board:
     def add_ship(self, coords):
         for i in coords.generate_ship:
             if Dot(i.x, i.y) in self.busy:
-                raise BoardErrorException
+                raise BoardErrorException()
         for i in coords.generate_ship:
             self.field[i.x][i.y] = '■'
             self.busy.append(Dot(i.x, i.y))
@@ -63,8 +63,6 @@ class Board:
                     self.busy.append(current)
 
     def shot(self, d):
-        if not (0 <= d.x < 6 > d.y >= 0):
-            raise OutOfBoardException()
 
         if d in self.busy:
             raise SamePointException()
@@ -153,6 +151,8 @@ class User(Player):
             if aim[0] in self.letters and aim[1].isdigit() and (0 < int(aim[1]) <= 6):
                 _x = int(self.letters.index(aim[0]))
                 _y = int(aim[1]) - 1
+            elif 0 > int(aim[1]) or int(aim[1]) > 6:
+                raise OutOfBoardException()
             else:
                 print('Командир, координаты не верны')
                 continue
