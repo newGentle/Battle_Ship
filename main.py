@@ -70,7 +70,7 @@ class Board:
         self.busy.append(d)
 
         for ship in self.ships:
-            if d in ship.generate_ship:
+            if ship.shooten(d):
                 ship.lives -= 1
                 self.field[d.x][d.y] = "X"
                 if ship.lives == 0:
