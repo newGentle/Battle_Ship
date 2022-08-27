@@ -243,11 +243,13 @@ class Game:
                 num -= 1
 
             if self.ai.board.count == 7:
+                print(self.ai.board)
                 print("-" * 20)
                 print("Командир, Победа за нами!")
                 break
 
             if self.usr.board.count == 7:
+                print(self.usr.board)
                 print("-" * 20)
                 print("Враг выиграл!")
                 break
