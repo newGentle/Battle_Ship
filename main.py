@@ -5,6 +5,7 @@ class Dot:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
@@ -12,7 +13,11 @@ class Dot:
         return f'{self.x}, {self.y}'
 
 class Board:
+
     def __init__(self):
+        self.ships = []
+        self.busy = []
+
         self.field = [['~'] * 6 for _ in range(6)]
 
     def __str__(self):
@@ -22,59 +27,83 @@ class Board:
             _field += f'\n{i + 1} ' + ' '.join(j)
         return _field
 
-def check_dots(dots):
-    if not (0 <= dots.x < 6 > dots.y >= 0):
-        return False
-    return True
+    def add_ship(self, coords):
+        for i in coords.generate_ship:
+            if Dot(i.x, i.y) in self.busy:
+                raise Exception
+        for i in coords.generate_ship:
+            self.field[i.x][i.y] = '■'
+            self.busy.append(Dot(i.x, i.y))
 
-def safe_dots(dots):
-    safe_zone = []
-    safe = [(-1, -1), (-1, 0), (-1, 1),
-            (0, -1), (0, 0), (0, 1),
-            (1, -1), (1, 0), (1, 1)]
-    for _x, _y in safe:
-        cur = Dot(_x + dots.x, _y + dots.y)
-        if 0 <= cur.x < 6 > cur.y >= 0:
-            safe_zone.append(Dot(cur.x, cur.y))
-    return safe_zone
+        self.ships.append(coords)
+        self._busy(coords)
 
-appended_coords = []
-new_ship_coords = []
-len_of_ships = [3, 2, 2, 1, 1, 1, 1]
-for i in len_of_ships:
-    while len(new_ship_coords) < i:
-        ship = Dot(randint(0, 5), randint(0, 5))
-        orientation = randint(0, 1)
-        if 0 <= ship.x < 6 > ship.y >= 0:
-            for j in range(i):
-                x = ship.x
-                y = ship.y
-                if orientation:
-                    x += j
+    def _busy(self, coords):
+        near = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
+        for i in coords.generate_ship:
+            for _x, _y in near:
+                current = Dot(i.x + _x, i.y + _y)
+                if not (0 <= current.x < 6 > current.y <= 0) or current not in self.busy:
+                    self.busy.append(Dot(current.x, current.y))
+
+
+
+class Ship:
+    def __init__(self, rand_coord, length):
+        self.rand_coord = rand_coord
+        self.length = length
+
+    @property
+    def generate_ship(self):
+        ships = []
+
+        orientation = ['U', 'D', 'L', 'R']
+        while len(orientation) > 0:
+            for i in range(self.length):
+                x = self.rand_coord.x
+                y = self.rand_coord.y
+                if orientation[0] == 'U':
+                    y -= i
+                elif orientation[0] == 'D':
+                    y += i
+                elif orientation[0] == 'L':
+                    x -= i
+                elif orientation[0] == 'R':
+                    x += i
+                if 0 <= x < 6 > y >= 0:
+                    ships.append(Dot(x, y))
                 else:
-                    y += j
-
-                if check_dots(Dot(x, y)):
-                    new_ship_coords.append(Dot(x, y))
-                else:
-                    new_ship_coords = []
                     break
-        else:
-            continue
-    for z in new_ship_coords:
-        appended_coords.append(Dot(z.x, z.y))
-    new_ship_coords = []
+            if len(ships) == self.length:
+                return ships
+            else:
+                orientation = orientation[1:]
 
 
-x = Board()
-try:
-    for i in appended_coords:
-        z = safe_dots(Dot(i.x, i.y))
-        for j in z:
-            x.field[j.x][j.y] = '.'
-            x.field[i.x][i.y] = '■'
-except Exception as e:
-    print(j.x, j.y)
+class Game:
 
-print(x)
-print(len(appended_coords))
+    def do_it_till_not_generate(self):
+        board = None
+        while board is None:
+            board = self.rand_ships()
+        return board
+
+    def rand_ships(self):
+        board = Board()
+        retry = 1
+        len_of_ships = [3, 2, 2, 1, 1, 1, 1]
+        for i in len_of_ships:
+            while True:
+                retry += 1
+                if retry > 2000:
+                    return None
+                ship = Ship(Dot(randint(0, 5), randint(0, 5)), i)
+                try:
+                    board.add_ship(ship)
+                    break
+                except Exception:
+                    pass
+        return board
+
+b = Game()
+print(b.do_it_till_not_generate())
