@@ -218,14 +218,13 @@ class Game:
         return board
 
     def greet(self):
-        print("-------------------")
-        print("  Приветсвуем вас  ")
-        print("      в игре       ")
-        print("    морской бой    ")
-        print("-------------------")
-        print(" пример ввода: A2  ")
-        print(" A - номер строки  ")
-        print(" 2 - номер столбца ")
+        print('-' * 32)
+        print('        Приветсвуем вас     ')
+        print('      в игре морской бой    ')
+        print('-' * 32)
+        print('        пример ввода: A2    ')
+        print('        A - номер строки    ')
+        print('        2 - номер столбца   ')
 
     def loop(self):
         num = 0
