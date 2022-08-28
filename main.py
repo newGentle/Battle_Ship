@@ -41,13 +41,11 @@ class Board:
         self.hide = hide
         self.letters = 'ABCDEF'
 
-    def __str__(self):
+    def __repr__(self):
         _field = ''
         _field += f'  1 2 3 4 5 6'
         for i, j in enumerate(self.field):
             _field += f'\n{self.letters[i]} ' + ' '.join(j)
-        if self.hide:
-            _field = _field.replace('■', '~')
         return _field
 
     def add_ship(self, coords):
@@ -181,12 +179,19 @@ class User(Player):
 class Game:
 
     def __init__(self):
-        user = self.do_it_till_not_generate()
-        computer = self.do_it_till_not_generate()
-        computer.hide = True
+        self.user = self.do_it_till_not_generate()
+        self.computer = self.do_it_till_not_generate()
+        self.computer.hide = True
+        self.ai = Computer(self.computer, self.user)
+        self.usr = User(self.user, self.computer)
+        self.letters = 'ABCDEF'
 
-        self.ai = Computer(computer, user)
-        self.usr = User(user, computer)
+        self.cpu = self.computer.field.copy()
+
+        for i in range(0, 6):
+            for j in range(0, 6):
+                if self.cpu[i][j] == '■':
+                    self.cpu[i][j] = '~'
 
     def do_it_till_not_generate(self):
         board = None
@@ -225,18 +230,20 @@ class Game:
     def loop(self):
         num = 0
         while True:
-            print("-" * 20)
-            print("Наша поля:")
-            print(self.usr.board)
-            print("-" * 20)
-            print("Поля врага:")
-            print(self.ai.board)
+            print('-' * 32)
+            print('  Наша поля         Поля врага')
+            print('-' * 32)
+            print('  1 2 3 4 5 6        1 2 3 4 5 6')
+
+            for i, j, z in zip(self.user.field, self.cpu, self.letters):
+                print(z, *i, '    ', z,  *j)
+
             if num % 2 == 0:
-                print("-" * 20)
+                print("-" * 32)
                 print("Наш Ход!")
                 repeat = self.usr.turn()
             else:
-                print("-" * 20)
+                print("-" * 32)
                 print("Ходит компьютер!")
                 repeat = self.ai.turn()
             if repeat:
@@ -258,7 +265,6 @@ class Game:
     def start(self):
         self.greet()
         self.loop()
-
 
 b = Game()
 b.start()
